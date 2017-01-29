@@ -30,6 +30,7 @@ def read_content(path, max_read_line=sys.maxsize):
     return content
 
 
+# vocab is only a dict
 def load_vocab(path, special=None):
     """
     Load vocab from file, the 0, 1, 2, 3 should be reserved for pad, <unk>, <s>, </s>

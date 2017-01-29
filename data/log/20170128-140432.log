@@ -1,0 +1,55 @@
+2017-01-28 14:04:32,442 [INFO :root] Config:
+batch_size: 128
+beam_size: 12
+bleu_ref_number: 7
+bos_word: <s>
+bucket_stride: 10
+buckets: [(10, 10), (10, 20), (10, 30), (10, 40), (10, 50), (10, 60), (20, 10), (20, 20), (20, 30), (20, 40), (20, 50), (20, 60), (30, 10), (30, 20), (30, 30), (30, 40), (30, 50), (30, 60), (40, 10), (40, 20), (40, 30), (40, 40), (40, 50), (40, 60), (50, 10), (50, 20), (50, 30), (50, 40), (50, 50), (50, 60), (60, 10), (60, 20), (60, 30), (60, 40), (60, 50), (60, 60)]
+checkpoint_freq_batch: 1000
+checkpoint_name: /Users/liuhuiting/Code/github/MXNMT/IWSLT/model/checkpoint_model
+data_root: /Users/liuhuiting/Code/github/MXNMT/IWSLT
+dev_max_samples: 100000
+dev_output: /Users/liuhuiting/Code/github/MXNMT/IWSLT/dev/dev.out
+dev_source: /Users/liuhuiting/Code/github/MXNMT/IWSLT/dev/IWSLT.dev.txt
+dev_target: /Users/liuhuiting/Code/github/MXNMT/IWSLT/invalid/invalid
+dropout: 0.5
+eos_word: </s>
+eval_per_x_batch: 400
+eval_start_epoch: 4
+greedy_batch_size: 32
+learning_rate: 1
+log_root: /Users/liuhuiting/Code/github/MXNMT/IWSLT/log
+max_decode_len: 15
+model_root: /Users/liuhuiting/Code/github/MXNMT/IWSLT/model
+model_save_freq: 1
+model_save_name: /Users/liuhuiting/Code/github/MXNMT/IWSLT/model/zh-en-iwslt
+model_to_load_number: 1
+model_to_load_prefix: /Users/liuhuiting/Code/github/MXNMT/IWSLT/model/zh-en-iwslt
+momentum: 0.1
+num_embed: 512
+num_epoch: 60
+num_hidden: 512
+num_lstm_layer: 1
+resume_model_number: 0
+resume_model_prefix: /Users/liuhuiting/Code/github/MXNMT/IWSLT/model/checkpoint_model
+show_every_x_batch: 100
+source_root: /Users/liuhuiting/Code/github/MXNMT
+source_vocab_path: /Users/liuhuiting/Code/github/MXNMT/IWSLT/zh/zh.vocab.pkl
+special_words: {'</s>': 3, '<s>': 2, '<unk>': 1}
+target_vocab_path: /Users/liuhuiting/Code/github/MXNMT/IWSLT/en/en.vocab.pkl
+test_device: gpu(0)
+test_gold: /Users/liuhuiting/Code/github/MXNMT/IWSLT/test/IWSLT.test.txt
+test_output: /Users/liuhuiting/Code/github/MXNMT/IWSLT/test/test.out
+test_source: /Users/liuhuiting/Code/github/MXNMT/IWSLT/test/IWSLT.test.txt
+train_device: [gpu(0)]
+train_max_samples: 100000
+train_source: /Users/liuhuiting/Code/github/MXNMT/IWSLT/zh/zh.txt
+train_target: /Users/liuhuiting/Code/github/MXNMT/IWSLT/en/en.txt
+unk_word: <unk>
+use_batch_greedy_search: False
+use_beam_search: True
+use_resuming: True
+
+2017-01-28 14:04:32,443 [INFO :root] In train mode.
+2017-01-28 14:04:32,560 [INFO :root] source_vocab size: 88436
+2017-01-28 14:04:32,560 [INFO :root] target_vocab size: 40194

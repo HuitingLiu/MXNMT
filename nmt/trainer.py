@@ -69,6 +69,25 @@ def train():
         except:
             logging.error('Resume failed.')
 
+    # operation sequence
+    # data_train   this is the DataIter
+    # optimizer    init optimizer
+    # _arg_params  init_params  This is only use when resuming training
+    # initializer=mx.init.Xavier(rnd_type='gaussian', factor_type="in", magnitude=3)
+
+    # ctx = mx.cpu()
+    # model = mx.mod.Module(symbol=sym_gen(len(source_vocab), len(target_vocab)),
+    #               context=ctx)
+    # model.bind(data_shapes=data_train.provide_data,
+    #          label_shapes=data_train.provide_label,)
+    # model.init_params(mx.init.Xavier(rnd_type='gaussian', factor_type="in", magnitude=3))
+    # model.init_optimizer(
+    #    optimizer='adadelta',
+    #    optimizer_params={
+    #        'clip_gradient': 10.0,
+    #    })
+
+
     model = mx.model.FeedForward(ctx=xconfig.train_device,
                                  symbol=sym_gen(len(source_vocab), len(target_vocab)),
                                  num_epoch=xconfig.num_epoch,
@@ -88,5 +107,5 @@ def train():
                                   #                per_batch=xconfig.eval_per_x_batch, use_beam=True,
                                   #                beam_size=xconfig.beam_size),
                                   ],
-              epoch_end_callback=[mx.callback.do_checkpoint(xconfig.model_save_name, xconfig.model_save_freq),
+             epoch_end_callback=[mx.callback.do_checkpoint(xconfig.model_save_name, xconfig.model_save_freq),
                                   ])

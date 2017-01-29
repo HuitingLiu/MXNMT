@@ -230,12 +230,16 @@ class MaskedBucketSentenceIter(mx.io.DataIter):
         # truncate each bucket into multiple of batch-size
         bucket_n_batches = []
         for i in range(len(self.source_data)):
-            bucket_n_batches.append(len(self.source_data[i]) / self.batch_size)
+            #print(len(self.source_data[i]), self.batch_size, type(len(self.source_data[i])), type(self.batch_size), type(len(self.source_data[i]) / self.batch_size))
+            bucket_n_batches.append(int(len(self.source_data[i]) / self.batch_size))
             self.source_data[i] = self.source_data[i][:int(bucket_n_batches[i] * self.batch_size)]
             self.source_mask_data[i] = self.source_mask_data[i][:int(bucket_n_batches[i] * self.batch_size)]
             self.target_data[i] = self.target_data[i][:int(bucket_n_batches[i] * self.batch_size)]
             self.target_mask_data[i] = self.target_mask_data[i][:int(bucket_n_batches[i] * self.batch_size)]
 
+
+        #for i, n in enumerate(bucket_n_batches):
+        #    print(i, n)
         bucket_plan = np.hstack([np.zeros(n, int) + i for i, n in enumerate(bucket_n_batches)])
         np.random.shuffle(bucket_plan)
 

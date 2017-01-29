@@ -3,9 +3,9 @@ import mxnet as mx
 
 # path
 source_root = os.path.abspath(os.path.join(os.getcwd(), os.path.pardir))
-data_root = os.path.join(source_root, 'IWSLT')
-model_root = os.path.join(source_root, 'IWSLT', 'model')
-log_root = os.path.join(source_root, 'IWSLT', 'log')
+data_root = os.path.join(source_root, 'data')
+model_root = os.path.join(source_root, 'data', 'model')
+log_root = os.path.join(source_root, 'data', 'log')
 
 if not os.path.exists(model_root):
     os.makedirs(model_root)
@@ -15,21 +15,22 @@ if not os.path.exists(log_root):
 # dictionary
 bos_word = '<s>'
 eos_word = '</s>'
-unk_word = '<unk>'
+unk_word = '<unk>' #OOV
 special_words = {unk_word: 1, bos_word: 2, eos_word: 3}
-source_vocab_path = os.path.join(data_root, 'zh', 'zh.vocab.pkl')
-target_vocab_path = os.path.join(data_root, 'en', 'en.vocab.pkl')
+source_vocab_path = os.path.join(data_root, 'src', 'src.vocab.pkl')
+target_vocab_path = os.path.join(data_root, 'tgt', 'tgt.vocab.pkl')
 
 # data set
-train_source = os.path.join(data_root, 'zh', 'zh.txt')
-train_target = os.path.join(data_root, 'en', 'en.txt')
+train_source = os.path.join(data_root, 'src', 'src.txt')
+train_target = os.path.join(data_root, 'tgt', 'tgt.txt')
 train_max_samples = 100000
-dev_source = os.path.join(data_root, 'dev', 'IWSLT.dev.txt')
+# Why the name is invalid for dev target?
+dev_source = os.path.join(data_root, 'dev', 'dev_src.txt')
 dev_target = os.path.join(data_root, 'invalid', 'invalid')
-dev_output = os.path.join(data_root, 'dev', 'dev.out')
+dev_output = os.path.join(data_root, 'dev', 'dev_tgt.txt')
 dev_max_samples = 100000
-test_source = os.path.join(data_root, 'test', 'IWSLT.test.txt')
-test_gold = os.path.join(data_root, 'test', 'IWSLT.test.txt')
+test_source = os.path.join(data_root, 'test', 'test.txt')
+test_gold = os.path.join(data_root, 'test', 'test.txt')
 
 bleu_ref_number = 7
 
@@ -54,18 +55,18 @@ eval_per_x_batch = 400
 eval_start_epoch = 4
 
 # model save option
-model_save_name = os.path.join(model_root, "zh-en-iwslt")
-model_save_freq = 1  # every x epoch
+model_save_name = os.path.join(model_root, 'seq_to_seq')
+model_save_freq = 3  # every x epoch
 checkpoint_name = os.path.join(model_root, 'checkpoint_model')
 checkpoint_freq_batch = 1000  # save checkpoint model every x batch
 
-# train device
+# train device  Can we have more gpu here?
 train_device = [mx.context.gpu(0)]
 # test device
 test_device = mx.context.gpu(0)
 
 # test parameter
-model_to_load_prefix = os.path.join(model_root, 'zh-en-iwslt')
+model_to_load_prefix = os.path.join(model_root, 'seq_to_seq')
 model_to_load_number = 1
 use_beam_search = True
 beam_size = 12

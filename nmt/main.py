@@ -32,7 +32,7 @@ logging.root.addHandler(file_handler)
 # Get the arguments
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "--mode", choices=["train", "test"], default='train',
+    "--mode", choices=["train", "test", "service"], default='train',
     help="The mode to run. In the `train` mode a model is trained."
          " In the `test` mode a trained model is used to translate")
 args = parser.parse_args()
@@ -47,6 +47,11 @@ if __name__ == "__main__":
         train()
     elif args.mode == 'test':
         logging.info('In test mode.')
+        from tester import test
+
+        test()
+    elif args.mode == 'service':
+        logging.info('In service mode.')
         from tester import test
 
         test()

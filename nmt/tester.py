@@ -273,8 +273,8 @@ def translate_one_with_beam(max_decode_len, sentence, model_buckets, unroll_len,
         (indexes, outputs), chosen_costs = _smallest(log_prob.asnumpy(), beam_size, only_first_row=(i == 0))
         next_chars = [revert_vocab[idx] if idx in revert_vocab else '' for idx in outputs]
 
-        next_state_h = mx.nd.empty(new_state.h.shape, ctx=mx.gpu(0))
-        next_state_c = mx.nd.empty(new_state.c.shape, ctx=mx.gpu(0))
+        next_state_h = mx.nd.empty(new_state.h.shape, ctx=xconfig.test_device)
+        next_state_c = mx.nd.empty(new_state.c.shape, ctx=xconfig.test_device)
         for idx in range(beam_size):
             next_state_h[idx] = new_state.h[np.asscalar(indexes[idx])]
             next_state_c[idx] = new_state.c[np.asscalar(indexes[idx])]
@@ -326,8 +326,8 @@ def test_on_file_iwslt(input_file, output_file, model_buckets, source_vocab, tar
     with open(input_file, mode='r', encoding='utf-8') as f, open(output_file, 'w', encoding='utf-8') as of:
         for line in f:
             read_count += 1
-            if (read_count - 1) % (xconfig.bleu_ref_number + 2) != 0:
-                continue
+            #if (read_count - 1) % (xconfig.bleu_ref_number + 2) != 0:
+            #    continue
 
             ch = line.split(' |||| ')[0].strip().split(' ')
             if do_beam:
@@ -342,6 +342,7 @@ def test_on_file_iwslt(input_file, output_file, model_buckets, source_vocab, tar
                                    target_ndarray)
                 en = ' '.join(en)
             of.write(en + '\n')
+            print(line, en)
             if do_beam:
                 for idx in range(len(all_en)):
                     beam_file.write('{0}\t{1}\n'.format(all_en[idx], all_score[idx]))
@@ -412,10 +413,10 @@ def test():
                            do_beam=xconfig.use_beam_search, beam_size=xconfig.beam_size)
 
     del model_buckets
-    from xmetric import get_bleu
-    raw_output, scores = get_bleu(xconfig.test_gold, xconfig.test_output)
-    logging.info(raw_output)
-    logging.info(str(scores))
+    #from xmetric import get_bleu
+    #raw_output, scores = get_bleu(xconfig.test_gold, xconfig.test_output)
+    #logging.info(raw_output)
+    #logging.info(str(scores))
 
 
 def test_use_model_param(arg_params, test_file, output_file, gold_file, use_beam=False, beam_size=-1):
@@ -445,3 +446,70 @@ def test_use_model_param(arg_params, test_file, output_file, gold_file, use_beam
     logging.info(raw_output)
     del model_buckets
     return score
+
+
+
+def service():
+    # load vocabulary
+    source_vocab = load_vocab(xconfig.source_vocab_path, xconfig.special_words)
+    target_vocab = load_vocab(xconfig.target_vocab_path, xconfig.special_words)
+
+    revert_vocab = MakeRevertVocab(target_vocab)
+
+    print('source_vocab size: {0}'.format(len(source_vocab)))
+    print('target_vocab size: {0}'.format(len(target_vocab)))
+
+    # load model from check-point
+    _, arg_params, __ = mx.model.load_checkpoint(xconfig.model_to_load_prefix, xconfig.model_to_load_number)
+
+    buckets = xconfig.buckets
+    buckets = [max(buckets)]
+
+    model_buckets = get_inference_models(buckets, arg_params, len(source_vocab), len(target_vocab),
+                                         xconfig.test_device, batch_size=xconfig.beam_size)
+    stdin_service(input_file=xconfig.test_source, output_file=xconfig.test_output, model_buckets=model_buckets,
+                       source_vocab=source_vocab, target_vocab=target_vocab, revert_vocab=revert_vocab,
+                       ctx=xconfig.test_device, unroll_len=max(buckets)[0], max_decode_len=xconfig.max_decode_len,
+                       do_beam=xconfig.use_beam_search, beam_size=xconfig.beam_size)
+
+    del model_buckets
+
+
+def stdin_service(input_file, output_file, model_buckets, source_vocab, target_vocab, revert_vocab, ctx,
+                       unroll_len,
+                       max_decode_len,
+                       do_beam=False,
+                       beam_size=1):
+    beam_file = open(output_file + '_beam', 'w', encoding='utf-8') if do_beam else None
+    batch_size = beam_size if do_beam else 1
+    eos_index = target_vocab[xconfig.eos_word]
+    target_ndarray = mx.nd.zeros((batch_size,), ctx=ctx)
+    read_count = 0
+
+    while True:
+        try:
+            read_count += 1
+            line = input("> ")
+            ch = line.strip().split(' ')
+            if do_beam:
+                # en = translate_one_with_beam(ch, model_buckets, beam_size)
+                all_en, all_score = translate_one_with_beam(max_decode_len, ch, model_buckets, unroll_len, source_vocab,
+                                                            target_vocab, revert_vocab, target_ndarray,
+                                                            beam_size, eos_index)
+                en = all_en[0]
+            else:
+                en = translate_one(max_decode_len, ch, model_buckets, unroll_len, source_vocab, target_vocab,
+                                   revert_vocab,
+                                   target_ndarray)
+                en = ' '.join(en)
+
+            print(en)
+            if do_beam:
+                for idx in range(len(all_en)):
+                    beam_file.write('{0}\t{1}\n'.format(all_en[idx], all_score[idx]))
+                beam_file.write('\n')
+        except EOFError:
+            break
+
+    if beam_file:
+        beam_file.close()

@@ -1,6 +1,7 @@
 dist
 *.egg-info
 build
-*.pyc
 *.paramas
 *.params
+__pycache__/
+*.py[cod]
